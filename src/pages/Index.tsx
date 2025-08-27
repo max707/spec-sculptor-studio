@@ -20,7 +20,7 @@ const Index = () => {
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center gap-3">
             <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
-              <Bell className="h-5 w-5 text-primary-foreground" />
+              <span className="h-5 w-5 text-xl flex items-center justify-center">🚨</span>
             </div>
             <div>
               <h1 className="text-2xl font-bold text-foreground">Capitol Crier</h1>
