@@ -23,7 +23,7 @@ const Index = () => {
               <Bell className="h-5 w-5 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Wyoming Vote Alerts</h1>
+              <h1 className="text-2xl font-bold text-foreground">Capitol Crier</h1>
               <p className="text-sm text-muted-foreground">Free alerts when your legislators vote</p>
             </div>
           </div>
