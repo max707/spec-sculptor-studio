@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +15,18 @@ interface District {
   type: 'exact' | 'possible';
 }
 
+interface Legislator {
+  id: number;
+  chamber: string;
+  district_code: string;
+  name: string;
+  party: string;
+  email: string;
+  phone: string;
+  profile_url: string;
+  active: boolean;
+}
+
 interface LookupFormProps {
   onDistrictsFound: (districts: {chamber: string, district: string}[]) => void;
 }
@@ -25,7 +37,35 @@ export const LookupForm = ({ onDistrictsFound }: LookupFormProps) => {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<{exact: District[], possible: District[], explain?: string} | null>(null);
   const [selectedPossible, setSelectedPossible] = useState<string[]>([]);
+  const [legislators, setLegislators] = useState<Legislator[]>([]);
   const { toast } = useToast();
+
+  // Fetch legislators on component mount
+  useEffect(() => {
+    const fetchLegislators = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('legislators')
+          .select('*')
+          .eq('active', true);
+        
+        if (error) throw error;
+        setLegislators(data || []);
+      } catch (error) {
+        console.error('Failed to fetch legislators:', error);
+      }
+    };
+
+    fetchLegislators();
+  }, []);
+
+  // Helper function to get legislator name for a district
+  const getLegislatorName = (chamber: string, district: string): string => {
+    const legislator = legislators.find(l => 
+      l.chamber === chamber && l.district_code === `${chamber.toUpperCase()[0]}${district.padStart(2, '0')}`
+    );
+    return legislator ? legislator.name : '';
+  };
 
   const validateWyomingInput = (input: string): boolean => {
     const zipRegex = /^82\d{3}$/;
@@ -182,12 +222,20 @@ export const LookupForm = ({ onDistrictsFound }: LookupFormProps) => {
               <MapPin className="h-4 w-4" />
               <AlertDescription>
                 <strong>Your Districts:</strong>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {results.exact.map((district, index) => (
-                    <Badge key={index} variant="default">
-                      {district.chamber === 'house' ? 'House' : 'Senate'} District {district.district}
-                    </Badge>
-                  ))}
+                <div className="space-y-2 mt-2">
+                  {results.exact.map((district, index) => {
+                    const legislatorName = getLegislatorName(district.chamber, district.district);
+                    return (
+                      <div key={index} className="flex items-center justify-between p-2 bg-muted/50 rounded-md">
+                        <Badge variant="default">
+                          {district.chamber === 'house' ? 'House' : 'Senate'} District {district.district}
+                        </Badge>
+                        {legislatorName && (
+                          <span className="text-sm font-medium">{legislatorName}</span>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </AlertDescription>
             </Alert>
@@ -202,18 +250,24 @@ export const LookupForm = ({ onDistrictsFound }: LookupFormProps) => {
                 <div className="space-y-2">
                   {results.possible.map((district, index) => {
                     const key = `${district.chamber}-${district.district}`;
+                    const legislatorName = getLegislatorName(district.chamber, district.district);
                     return (
-                      <div key={index} className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          id={key}
-                          checked={selectedPossible.includes(key)}
-                          onChange={() => handleSelectPossible(key)}
-                          className="rounded border-gray-300"
-                        />
-                        <label htmlFor={key} className="text-sm">
-                          {district.chamber === 'house' ? 'House' : 'Senate'} District {district.district}
-                        </label>
+                      <div key={index} className="flex items-center justify-between p-2 bg-muted/50 rounded-md">
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            id={key}
+                            checked={selectedPossible.includes(key)}
+                            onChange={() => handleSelectPossible(key)}
+                            className="rounded border-gray-300"
+                          />
+                          <label htmlFor={key} className="text-sm">
+                            {district.chamber === 'house' ? 'House' : 'Senate'} District {district.district}
+                          </label>
+                        </div>
+                        {legislatorName && (
+                          <span className="text-sm font-medium">{legislatorName}</span>
+                        )}
                       </div>
                     );
                   })}

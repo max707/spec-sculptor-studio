@@ -64,23 +64,6 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            {/* Show districts if found */}
-            {selectedDistricts.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Your Districts</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedDistricts.map((district, index) => (
-                      <Badge key={index} variant="secondary">
-                        {district.chamber === 'house' ? 'House' : 'Senate'} District {district.district}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
           </div>
 
           {/* Subscribe Section */}
