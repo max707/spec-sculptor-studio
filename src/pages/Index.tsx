@@ -59,7 +59,7 @@ const Index = () => {
 
           {/* Subscribe Section */}
           <div className="space-y-6">
-            {showSubscribe ? <Card>
+            {showSubscribe && <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Bell className="h-5 w-5 text-primary" />
@@ -71,19 +71,6 @@ const Index = () => {
                 </CardHeader>
                 <CardContent>
                   <SubscribeForm selectedDistricts={selectedDistricts} />
-                </CardContent>
-              </Card> : <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="h-5 w-5 text-primary" />
-                    View All Legislators
-                  </CardTitle>
-                  <CardDescription>
-                    Browse the complete list of Wyoming House and Senate members
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <LegislatorList />
                 </CardContent>
               </Card>}
           </div>
