@@ -1,1 +1,7 @@
 project_id = "qdjenshlreldhdyoxolz"
+
+[functions.lookup-districts]
+verify_jwt = false
+
+[functions.subscribe]
+verify_jwt = false

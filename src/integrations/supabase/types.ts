@@ -14,13 +14,313 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bills: {
+        Row: {
+          created_at: string | null
+          id: string
+          last_seen_at: string | null
+          session: string | null
+          short_code: string | null
+          title: string | null
+          url: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id: string
+          last_seen_at?: string | null
+          session?: string | null
+          short_code?: string | null
+          title?: string | null
+          url?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          last_seen_at?: string | null
+          session?: string | null
+          short_code?: string | null
+          title?: string | null
+          url?: string | null
+        }
+        Relationships: []
+      }
+      legislators: {
+        Row: {
+          active: boolean | null
+          chamber: string | null
+          created_at: string | null
+          district_code: string | null
+          email: string | null
+          id: number
+          name: string | null
+          party: string | null
+          phone: string | null
+          profile_url: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          chamber?: string | null
+          created_at?: string | null
+          district_code?: string | null
+          email?: string | null
+          id?: number
+          name?: string | null
+          party?: string | null
+          phone?: string | null
+          profile_url?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          chamber?: string | null
+          created_at?: string | null
+          district_code?: string | null
+          email?: string | null
+          id?: number
+          name?: string | null
+          party?: string | null
+          phone?: string | null
+          profile_url?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      member_votes: {
+        Row: {
+          decision: string | null
+          legislator_district: string
+          legislator_name: string | null
+          vote_id: number
+        }
+        Insert: {
+          decision?: string | null
+          legislator_district: string
+          legislator_name?: string | null
+          vote_id: number
+        }
+        Update: {
+          decision?: string | null
+          legislator_district?: string
+          legislator_name?: string | null
+          vote_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_votes_vote_id_fkey"
+            columns: ["vote_id"]
+            isOneToOne: false
+            referencedRelation: "votes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_preferences: {
+        Row: {
+          mode: string | null
+          quiet_hours: Json | null
+          subscriber_id: number
+        }
+        Insert: {
+          mode?: string | null
+          quiet_hours?: Json | null
+          subscriber_id: number
+        }
+        Update: {
+          mode?: string | null
+          quiet_hours?: Json | null
+          subscriber_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_preferences_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: true
+            referencedRelation: "subscribers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      outbound_dedup: {
+        Row: {
+          channel: string
+          sent_at: string | null
+          subscriber_id: number
+          vote_id: number
+        }
+        Insert: {
+          channel: string
+          sent_at?: string | null
+          subscriber_id: number
+          vote_id: number
+        }
+        Update: {
+          channel?: string
+          sent_at?: string | null
+          subscriber_id?: number
+          vote_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outbound_dedup_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "subscribers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "outbound_dedup_vote_id_fkey"
+            columns: ["vote_id"]
+            isOneToOne: false
+            referencedRelation: "votes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscriber_districts: {
+        Row: {
+          added_via: string | null
+          chamber: string
+          district_code: string
+          subscriber_id: number
+        }
+        Insert: {
+          added_via?: string | null
+          chamber: string
+          district_code: string
+          subscriber_id: number
+        }
+        Update: {
+          added_via?: string | null
+          chamber?: string
+          district_code?: string
+          subscriber_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriber_districts_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "subscribers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscribers: {
+        Row: {
+          consent_checkbox_at: string | null
+          created_at: string | null
+          email: string | null
+          email_confirmed_at: string | null
+          id: number
+          phone_e164: string | null
+          sms_confirmed_at: string | null
+        }
+        Insert: {
+          consent_checkbox_at?: string | null
+          created_at?: string | null
+          email?: string | null
+          email_confirmed_at?: string | null
+          id?: number
+          phone_e164?: string | null
+          sms_confirmed_at?: string | null
+        }
+        Update: {
+          consent_checkbox_at?: string | null
+          created_at?: string | null
+          email?: string | null
+          email_confirmed_at?: string | null
+          id?: number
+          phone_e164?: string | null
+          sms_confirmed_at?: string | null
+        }
+        Relationships: []
+      }
+      votes: {
+        Row: {
+          absent: number | null
+          action_text: string | null
+          bill_id: string | null
+          chamber: string | null
+          created_at: string | null
+          excused: number | null
+          external_key: string | null
+          id: number
+          nays: number | null
+          result: string | null
+          source_url: string | null
+          taken_at: string | null
+          yeas: number | null
+        }
+        Insert: {
+          absent?: number | null
+          action_text?: string | null
+          bill_id?: string | null
+          chamber?: string | null
+          created_at?: string | null
+          excused?: number | null
+          external_key?: string | null
+          id?: number
+          nays?: number | null
+          result?: string | null
+          source_url?: string | null
+          taken_at?: string | null
+          yeas?: number | null
+        }
+        Update: {
+          absent?: number | null
+          action_text?: string | null
+          bill_id?: string | null
+          chamber?: string | null
+          created_at?: string | null
+          excused?: number | null
+          external_key?: string | null
+          id?: number
+          nays?: number | null
+          result?: string | null
+          source_url?: string | null
+          taken_at?: string | null
+          yeas?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "votes_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "bills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      citext: {
+        Args: { "": boolean } | { "": string } | { "": unknown }
+        Returns: string
+      }
+      citext_hash: {
+        Args: { "": string }
+        Returns: number
+      }
+      citextin: {
+        Args: { "": unknown }
+        Returns: string
+      }
+      citextout: {
+        Args: { "": string }
+        Returns: unknown
+      }
+      citextrecv: {
+        Args: { "": unknown }
+        Returns: string
+      }
+      citextsend: {
+        Args: { "": string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
