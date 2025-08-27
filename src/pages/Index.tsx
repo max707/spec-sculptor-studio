@@ -8,22 +8,22 @@ import { MapPin, Users, Bell, AlertCircle } from "lucide-react";
 import { LookupForm } from "@/components/LookupForm";
 import { SubscribeForm } from "@/components/SubscribeForm";
 import { LegislatorList } from "@/components/LegislatorList";
-
 const Index = () => {
-  const [selectedDistricts, setSelectedDistricts] = useState<{chamber: string, district: string}[]>([]);
+  const [selectedDistricts, setSelectedDistricts] = useState<{
+    chamber: string;
+    district: string;
+  }[]>([]);
   const [showSubscribe, setShowSubscribe] = useState(false);
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center gap-3">
             <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
-              <span className="h-5 w-5 text-xl flex items-center justify-center">🚨</span>
+              <Bell className="h-5 w-5 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Capitol Crier</h1>
+              <h1 className="text-2xl font-bold text-foreground">Wyoming Vote Alerts</h1>
               <p className="text-sm text-muted-foreground">Free alerts when your legislators vote</p>
             </div>
           </div>
@@ -32,12 +32,7 @@ const Index = () => {
 
       {/* Banner */}
       <div className="bg-accent/30 border-b">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center gap-2 text-sm">
-            <AlertCircle className="h-4 w-4 text-accent-foreground" />
-            <span>This tool is for Wyoming residents only (for now). Please consider donating so we can expand.</span>
-          </div>
-        </div>
+        
       </div>
 
       <div className="container mx-auto px-4 py-8">
@@ -50,26 +45,34 @@ const Index = () => {
                   <MapPin className="h-5 w-5 text-primary" />
                   Find Your Legislators
                 </CardTitle>
-                <CardDescription>
-                  Enter your Wyoming address or ZIP code to find your House and Senate representatives
-                </CardDescription>
+                <CardDescription>Enter your address to find your House and Senate representatives</CardDescription>
               </CardHeader>
               <CardContent>
-                <LookupForm 
-                  onDistrictsFound={(districts) => {
-                    setSelectedDistricts(districts);
-                    setShowSubscribe(true);
-                  }}
-                />
+                <LookupForm onDistrictsFound={districts => {
+                setSelectedDistricts(districts);
+                setShowSubscribe(true);
+              }} />
               </CardContent>
             </Card>
 
+            {/* Show districts if found */}
+            {selectedDistricts.length > 0 && <Card>
+                <CardHeader>
+                  <CardTitle>Your Districts</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedDistricts.map((district, index) => <Badge key={index} variant="secondary">
+                        {district.chamber === 'house' ? 'House' : 'Senate'} District {district.district}
+                      </Badge>)}
+                  </div>
+                </CardContent>
+              </Card>}
           </div>
 
           {/* Subscribe Section */}
           <div className="space-y-6">
-            {showSubscribe ? (
-              <Card>
+            {showSubscribe ? <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Bell className="h-5 w-5 text-primary" />
@@ -82,9 +85,7 @@ const Index = () => {
                 <CardContent>
                   <SubscribeForm selectedDistricts={selectedDistricts} />
                 </CardContent>
-              </Card>
-            ) : (
-              <Card>
+              </Card> : <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Users className="h-5 w-5 text-primary" />
@@ -97,8 +98,7 @@ const Index = () => {
                 <CardContent>
                   <LegislatorList />
                 </CardContent>
-              </Card>
-            )}
+              </Card>}
           </div>
         </div>
 
@@ -140,8 +140,6 @@ const Index = () => {
           <p className="mt-2">Data sourced from the official Wyoming Legislature website</p>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;

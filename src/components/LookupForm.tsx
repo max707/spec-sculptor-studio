@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,83 +8,45 @@ import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { MapPin, Info, Loader2 } from "lucide-react";
-
 interface District {
   chamber: string;
   district: string;
   type: 'exact' | 'possible';
 }
-
-interface Legislator {
-  id: number;
-  chamber: string;
-  district_code: string;
-  name: string;
-  party: string;
-  email: string;
-  phone: string;
-  profile_url: string;
-  active: boolean;
-}
-
 interface LookupFormProps {
-  onDistrictsFound: (districts: {chamber: string, district: string}[]) => void;
+  onDistrictsFound: (districts: {
+    chamber: string;
+    district: string;
+  }[]) => void;
 }
-
-export const LookupForm = ({ onDistrictsFound }: LookupFormProps) => {
+export const LookupForm = ({
+  onDistrictsFound
+}: LookupFormProps) => {
   const [address, setAddress] = useState("");
   const [zip, setZip] = useState("");
   const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState<{exact: District[], possible: District[], explain?: string} | null>(null);
+  const [results, setResults] = useState<{
+    exact: District[];
+    possible: District[];
+    explain?: string;
+  } | null>(null);
   const [selectedPossible, setSelectedPossible] = useState<string[]>([]);
-  const [legislators, setLegislators] = useState<Legislator[]>([]);
-  const { toast } = useToast();
-
-  // Fetch legislators on component mount
-  useEffect(() => {
-    const fetchLegislators = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('legislators')
-          .select('*')
-          .eq('active', true);
-        
-        if (error) throw error;
-        setLegislators(data || []);
-      } catch (error) {
-        console.error('Failed to fetch legislators:', error);
-      }
-    };
-
-    fetchLegislators();
-  }, []);
-
-  // Helper function to get legislator name for a district
-  const getLegislatorName = (chamber: string, district: string): string => {
-    const legislator = legislators.find(l => 
-      l.chamber === chamber && l.district_code === `${chamber.toUpperCase()[0]}${district.padStart(2, '0')}`
-    );
-    return legislator ? legislator.name : '';
-  };
-
+  const {
+    toast
+  } = useToast();
   const validateWyomingInput = (input: string): boolean => {
     const zipRegex = /^82\d{3}$/;
     const addressRegex = /wyoming|wy/i;
-    
     if (input.length === 5 && zipRegex.test(input)) {
       return true;
     }
-    
     if (input.length > 10 && addressRegex.test(input)) {
       return true;
     }
-    
     return false;
   };
-
   const handleLookup = async () => {
     const inputValue = address || zip;
-    
     if (!inputValue.trim()) {
       toast({
         title: "Error",
@@ -93,7 +55,6 @@ export const LookupForm = ({ onDistrictsFound }: LookupFormProps) => {
       });
       return;
     }
-
     if (!validateWyomingInput(inputValue)) {
       toast({
         title: "Wyoming Only",
@@ -102,20 +63,20 @@ export const LookupForm = ({ onDistrictsFound }: LookupFormProps) => {
       });
       return;
     }
-
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('lookup-districts', {
-        body: { 
-          address: address || undefined, 
-          zip: zip || undefined 
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke('lookup-districts', {
+        body: {
+          address: address || undefined,
+          zip: zip || undefined
         }
       });
-
       if (error) throw error;
-
       setResults(data);
-      
+
       // If we have exact results, automatically set them
       if (data.exact && data.exact.length > 0) {
         onDistrictsFound(data.exact.map((d: District) => ({
@@ -123,12 +84,10 @@ export const LookupForm = ({ onDistrictsFound }: LookupFormProps) => {
           district: d.district
         })));
       }
-
       toast({
         title: "Success",
         description: `Found ${data.exact?.length || 0} exact matches and ${data.possible?.length || 0} possible matches`
       });
-
     } catch (error) {
       console.error('Lookup error:', error);
       toast({
@@ -140,47 +99,26 @@ export const LookupForm = ({ onDistrictsFound }: LookupFormProps) => {
       setLoading(false);
     }
   };
-
   const handleSelectPossible = (districtKey: string) => {
-    setSelectedPossible(prev => 
-      prev.includes(districtKey) 
-        ? prev.filter(k => k !== districtKey)
-        : [...prev, districtKey]
-    );
+    setSelectedPossible(prev => prev.includes(districtKey) ? prev.filter(k => k !== districtKey) : [...prev, districtKey]);
   };
-
   const handleConfirmPossible = () => {
     if (!results) return;
-    
-    const selected = results.possible.filter(d => 
-      selectedPossible.includes(`${d.chamber}-${d.district}`)
-    );
-    
-    const combined = [
-      ...(results.exact || []),
-      ...selected
-    ];
-    
+    const selected = results.possible.filter(d => selectedPossible.includes(`${d.chamber}-${d.district}`));
+    const combined = [...(results.exact || []), ...selected];
     onDistrictsFound(combined.map(d => ({
       chamber: d.chamber,
       district: d.district
     })));
   };
-
-  return (
-    <div className="space-y-4">
+  return <div className="space-y-4">
       <div className="grid gap-4">
         <div>
           <Label htmlFor="address">Wyoming Address</Label>
-          <Input
-            id="address"
-            placeholder="123 Main St, Cheyenne, WY 82001"
-            value={address}
-            onChange={(e) => {
-              setAddress(e.target.value);
-              setZip(""); // Clear ZIP when typing address
-            }}
-          />
+          <Input id="address" placeholder="123 Main St, Cheyenne, WY 82001" value={address} onChange={e => {
+          setAddress(e.target.value);
+          setZip(""); // Clear ZIP when typing address
+        }} />
         </div>
         
         <div className="flex items-center gap-4">
@@ -191,101 +129,52 @@ export const LookupForm = ({ onDistrictsFound }: LookupFormProps) => {
         
         <div>
           <Label htmlFor="zip">Wyoming ZIP Code</Label>
-          <Input
-            id="zip"
-            placeholder="82001"
-            value={zip}
-            onChange={(e) => {
-              const value = e.target.value.replace(/\D/g, '').slice(0, 5);
-              setZip(value);
-              setAddress(""); // Clear address when typing ZIP
-            }}
-            maxLength={5}
-          />
+          <Input id="zip" placeholder="82001" value={zip} onChange={e => {
+          const value = e.target.value.replace(/\D/g, '').slice(0, 5);
+          setZip(value);
+          setAddress(""); // Clear address when typing ZIP
+        }} maxLength={5} />
         </div>
       </div>
 
-      <Button 
-        onClick={handleLookup}
-        disabled={loading}
-        className="w-full"
-      >
+      <Button onClick={handleLookup} disabled={loading} className="w-full">
         {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
         <MapPin className="mr-2 h-4 w-4" />
         Find My Legislators
       </Button>
 
-      {results && (
-        <div className="space-y-4">
-          {results.exact && results.exact.length > 0 && (
-            <Alert>
+      {results && <div className="space-y-4">
+          {results.exact && results.exact.length > 0 && <Alert>
               <MapPin className="h-4 w-4" />
               <AlertDescription>
                 <strong>Your Districts:</strong>
-                <div className="space-y-2 mt-2">
-                  {results.exact.map((district, index) => {
-                    const legislatorName = getLegislatorName(district.chamber, district.district);
-                    return (
-                      <div key={index} className="flex items-center justify-between p-2 bg-muted/50 rounded-md">
-                        <Badge variant="default">
-                          {district.chamber === 'house' ? 'House' : 'Senate'} District {district.district}
-                        </Badge>
-                        {legislatorName && (
-                          <span className="text-sm font-medium">{legislatorName}</span>
-                        )}
-                      </div>
-                    );
-                  })}
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {results.exact.map((district, index) => {})}
                 </div>
               </AlertDescription>
-            </Alert>
-          )}
+            </Alert>}
 
-          {results.possible && results.possible.length > 0 && (
-            <Alert>
+          {results.possible && results.possible.length > 0 && <Alert>
               <Info className="h-4 w-4" />
               <AlertDescription>
                 <strong>Possible Districts:</strong>
                 <p className="text-sm mt-1 mb-3">{results.explain}</p>
                 <div className="space-y-2">
                   {results.possible.map((district, index) => {
-                    const key = `${district.chamber}-${district.district}`;
-                    const legislatorName = getLegislatorName(district.chamber, district.district);
-                    return (
-                      <div key={index} className="flex items-center justify-between p-2 bg-muted/50 rounded-md">
-                        <div className="flex items-center space-x-2">
-                          <input
-                            type="checkbox"
-                            id={key}
-                            checked={selectedPossible.includes(key)}
-                            onChange={() => handleSelectPossible(key)}
-                            className="rounded border-gray-300"
-                          />
-                          <label htmlFor={key} className="text-sm">
-                            {district.chamber === 'house' ? 'House' : 'Senate'} District {district.district}
-                          </label>
-                        </div>
-                        {legislatorName && (
-                          <span className="text-sm font-medium">{legislatorName}</span>
-                        )}
-                      </div>
-                    );
-                  })}
+              const key = `${district.chamber}-${district.district}`;
+              return <div key={index} className="flex items-center space-x-2">
+                        <input type="checkbox" id={key} checked={selectedPossible.includes(key)} onChange={() => handleSelectPossible(key)} className="rounded border-gray-300" />
+                        <label htmlFor={key} className="text-sm">
+                          {district.chamber === 'house' ? 'House' : 'Senate'} District {district.district}
+                        </label>
+                      </div>;
+            })}
                 </div>
-                {selectedPossible.length > 0 && (
-                  <Button 
-                    onClick={handleConfirmPossible}
-                    size="sm"
-                    className="mt-3"
-                  >
+                {selectedPossible.length > 0 && <Button onClick={handleConfirmPossible} size="sm" className="mt-3">
                     Subscribe to Selected Districts
-                  </Button>
-                )}
+                  </Button>}
               </AlertDescription>
-            </Alert>
-          )}
-        </div>
-      )}
-    </div>
-  );
+            </Alert>}
+        </div>}
+    </div>;
 };
