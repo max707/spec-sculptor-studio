@@ -29,6 +29,22 @@ serve(async (req) => {
 
     console.log('Starting legislator import...');
 
+    // Clear existing data first
+    const { error: deleteError } = await supabase
+      .from('legislators')
+      .delete()
+      .neq('id', 0); // Delete all records
+    
+    if (deleteError) {
+      console.error('Error clearing existing data:', deleteError);
+      return new Response(
+        JSON.stringify({ error: 'Failed to clear existing data' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('Existing data cleared. Inserting new data...');
+
     // Parse Senate data
     const senateData: LegislatorData[] = [
       { name: 'Jim Anderson', email: 'jim.anderson@wyoleg.gov', party: 'R', district_code: '28', chamber: 'senate', phone: '(307) 267-5775', profile_url: 'https://wyoleg.gov/Legislators/2025/S/1985' },
