@@ -23,7 +23,6 @@ export const LookupForm = ({
   onDistrictsFound
 }: LookupFormProps) => {
   const [address, setAddress] = useState("");
-  const [zip, setZip] = useState("");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<{
     exact: District[];
@@ -46,11 +45,11 @@ export const LookupForm = ({
     return false;
   };
   const handleLookup = async () => {
-    const inputValue = address || zip;
+    const inputValue = address;
     if (!inputValue.trim()) {
       toast({
         title: "Error",
-        description: "Please enter an address or ZIP code",
+        description: "Please enter an address",
         variant: "destructive"
       });
       return;
@@ -70,8 +69,7 @@ export const LookupForm = ({
         error
       } = await supabase.functions.invoke('lookup-districts', {
         body: {
-          address: address || undefined,
-          zip: zip || undefined
+          address: address
         }
       });
       if (error) throw error;
@@ -115,25 +113,7 @@ export const LookupForm = ({
       <div className="grid gap-4">
         <div>
           <Label htmlFor="address">Wyoming Address</Label>
-          <Input id="address" placeholder="123 Main St, Cheyenne, WY 82001" value={address} onChange={e => {
-          setAddress(e.target.value);
-          setZip(""); // Clear ZIP when typing address
-        }} />
-        </div>
-        
-        <div className="flex items-center gap-4">
-          <Separator className="flex-1" />
-          <span className="text-sm text-muted-foreground">or</span>
-          <Separator className="flex-1" />
-        </div>
-        
-        <div>
-          <Label htmlFor="zip">Wyoming ZIP Code</Label>
-          <Input id="zip" placeholder="82001" value={zip} onChange={e => {
-          const value = e.target.value.replace(/\D/g, '').slice(0, 5);
-          setZip(value);
-          setAddress(""); // Clear address when typing ZIP
-        }} maxLength={5} />
+          <Input id="address" placeholder="123 Main St, Cheyenne, WY 82001" value={address} onChange={e => setAddress(e.target.value)} />
         </div>
       </div>
 

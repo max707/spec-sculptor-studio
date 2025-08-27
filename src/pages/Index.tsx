@@ -20,10 +20,10 @@ const Index = () => {
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center gap-3">
             <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
-              <Bell className="h-5 w-5 text-primary-foreground" />
+              <span className="text-lg">🚨</span>
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Wyoming Vote Alerts</h1>
+              <h1 className="text-2xl font-bold text-foreground">Capitol Crier</h1>
               <p className="text-sm text-muted-foreground">Free alerts when your legislators vote</p>
             </div>
           </div>
@@ -55,19 +55,6 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            {/* Show districts if found */}
-            {selectedDistricts.length > 0 && <Card>
-                <CardHeader>
-                  <CardTitle>Your Districts</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedDistricts.map((district, index) => <Badge key={index} variant="secondary">
-                        {district.chamber === 'house' ? 'House' : 'Senate'} District {district.district}
-                      </Badge>)}
-                  </div>
-                </CardContent>
-              </Card>}
           </div>
 
           {/* Subscribe Section */}
