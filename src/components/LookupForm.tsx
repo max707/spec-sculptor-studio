@@ -149,7 +149,11 @@ export const LookupForm = ({
               <AlertDescription>
                 <strong>Your Districts:</strong>
                 <div className="flex flex-wrap gap-2 mt-2">
-                  {results.exact.map((district, index) => {})}
+                  {results.exact.map((district, index) => (
+                    <Badge key={index} variant="default">
+                      {district.chamber === 'house' ? 'House' : 'Senate'} District {district.district}
+                    </Badge>
+                  ))}
                 </div>
               </AlertDescription>
             </Alert>}
